@@ -1,0 +1,26 @@
+{
+  "name": "yfblog",
+  "version": "1.0.0",
+  "description": "博客管理系统网站（徐要芳毕业设计）",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YFBlog/YfBlog.git"
+  },
+  "keywords": [
+    "express",
+    "MongoDB"
+  ],
+  "author": "徐要芳",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YFBlog/YfBlog/issues"
+  },
+  "homepage": "https://github.com/YFBlog/YfBlog#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
