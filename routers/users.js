@@ -1,0 +1,80 @@
+/*********1/引入模块 ******/
+const express = require('express');
+// const cookieParser = require('cookie-parser');
+const db = require('../db');
+const User = db.User;
+
+// express().use(cookieParser('aiwhodiNHEFIhv sdLmf938nx'));
+// express().use(cookieParser());
+
+/********2/创建路由对象 ******/
+// 创建路由对象
+const router = express.Router();
+
+// 注册页面用户名检测
+router.get('/user/exist', (req, res) => {
+    // console.log(req.query)
+    User.find({ username: req.query.username }, (error, data) => {
+        if (data.length == 0) {
+            res.json({ code: 1, message: '用户名符合要求' });
+        } else {
+            res.json({ code: 0, message: '用户名已存在' });
+        }
+    })
+})
+// 注册请求
+router.post('/user/register', (req, res) => {
+    // console.log(req.body)
+    // 创建一个User类型的对象;
+    const user = new User(req.body);
+    User.find((error, data) => {
+        console.log(data);
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].username == user.username) {
+                res.json({ code: 0, message: '用户名已存在，请重新输入！' });
+                return;
+            }
+        }
+        // 将对象保存到数据库
+        user.save((error) => {
+            if (error) {
+                res.json({ code: 0, message: '网络异常，注册不成功' });
+                console.log(error + '保存数据失败')
+            } else {
+                res.json({ code: 1, message: '注册成功，请登录' })
+                console.log('保存数据成功')
+            }
+        })
+    })
+})
+// 登录请求
+router.post('/user/login', (req, res) => {
+    // console.log(req.body);
+    User.find({ username: req.body.username }, (error, data) => {
+        // console.log(data);
+        if (data.length == 0) {
+            res.json({ code: 0, message: '用户名不存在，请重新输入！' })
+        } else {
+            if (data[0].password == req.body.password) {
+                // 设置cookie,记录用户状态
+                // res.cookie('名字',布尔值,{expires:有效期,signed:是否签名});
+                // res.cookie('isLogin', true, { expires: new Date(Date.now() + 1000 * 60), signed: true });
+                // res.cookie('username',req.body.username)
+                res.json({ code: 1, message: '登录成功' });
+            } else {
+                res.json({ code: 0, message: '密码有误，请重新输入！' });
+            }
+        }
+    })
+})
+
+router.get('/user/home', (req, res) => {
+    // req.cookie:随着请求发送到服务器的cookie对象
+    // req.signedCookies:解密之后的cookie对象;
+    // console.log(req.cookies, req.signedCookies);
+
+})
+
+
+/*******3/导出路由模块*** */
+module.exports = router;
