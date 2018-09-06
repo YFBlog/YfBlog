@@ -1,3 +1,4 @@
+
 /*********1/引入模块 ******/
 const express = require('express');
 // const cookieParser = require('cookie-parser');
@@ -18,17 +19,17 @@ router.get('/user/exist', (req, res) => {
         if (data.length == 0) {
             res.json({ code: 1, message: '用户名符合要求' });
         } else {
-            res.json({ code: 0, message: '用户名已存在' });
+            res.json({ code: 0, message: '该用户名已存在' });
         }
     })
 })
 // 注册请求
 router.post('/user/register', (req, res) => {
-    // console.log(req.body)
+    console.log(req.body);
     // 创建一个User类型的对象;
     const user = new User(req.body);
     User.find((error, data) => {
-        console.log(data);
+        // console.log(data);
         for (let i = 0; i < data.length; i++) {
             if (data[i].username == user.username) {
                 res.json({ code: 0, message: '用户名已存在，请重新输入！' });
@@ -49,9 +50,7 @@ router.post('/user/register', (req, res) => {
 })
 // 登录请求
 router.post('/user/login', (req, res) => {
-    // console.log(req.body);
     User.find({ username: req.body.username }, (error, data) => {
-        // console.log(data);
         if (data.length == 0) {
             res.json({ code: 0, message: '用户名不存在，请重新输入！' })
         } else {
@@ -67,12 +66,78 @@ router.post('/user/login', (req, res) => {
         }
     })
 })
+// 获取个人资料
+router.get('/get_personalDate', (req, res) => {
+    User.find({ username: req.query.username }, (error, data) => {
+        if (error) {
+            res.json({ code: 0, message: '网络异常,数据无法获取' });
+        } else {
+            const personalDate = {
+                realname: data[0].realname,
+                sex: data[0].sex == undefined ? "male" : data[0].sex,
+                birthDate: data[0].birthDate,
+                age: data[0].age,
+                address: data[0].address,
+                signature: data[0].signature,
+                info: data[0].info
+            }
+            res.json({ code: 1, message: personalDate })
+        }
+    })
+})
+// 修改个人资料
+router.post('/change_personalDate', (req, res) => {
+    const personalDate = req.body.personalDate;
+    User.findByIdAndUpdate(req.body.userId, {
+        realname: personalDate.realname,
+        sex: personalDate.sex,
+        birthDate: personalDate.birthDate,
+        age: personalDate.age,
+        address: personalDate.address,
+        signature: personalDate.signature,
+        info: personalDate.info,
+    }, (error) => {
+        if (error) {
+            res.json({ code: 0, message: '网络异常，修改失败' });
+        } else {
+            res.json({ code: 1, message: '修改成功' })
+        }
+    })
+})
 
 router.get('/user/home', (req, res) => {
     // req.cookie:随着请求发送到服务器的cookie对象
     // req.signedCookies:解密之后的cookie对象;
     // console.log(req.cookies, req.signedCookies);
 
+})
+
+// 处理用户的注销请求
+router.get('/admin/manage-user', (req, res) => {
+    User.find((error, data) => {
+        if (error) {
+            console.log(error);
+        } else {
+            res.json({ data });
+        }
+    })
+})
+// 处理删除用户的请求
+router.post('/admin/delete-user', (req, res) => {
+    User.findByIdAndRemove(req.body._id, (error) => {
+        if (error) {
+            res.json({ code: 0, message: '数据库异常，删除失败' })
+        } else {
+            res.json({ code: 1, message: '删除成功' });
+        }
+    })
+})
+
+// 获取用户id
+router.post('/getId', (req, res) => {
+    User.find({ username: req.body.username }, (error, data) => {
+        res.json({ id: data[0]._id });
+    })
 })
 
 
